@@ -15,8 +15,8 @@ def runSim():
                     zs=points[:, 2], ls='', marker='.')
     # Creating the Animation object
     line_anim = animation.FuncAnimation(fig, update_points, frames=180,
-                                       fargs=(line,), repeat=False,
-                                       interval=10, blit=False)
+                                        fargs=(line,), repeat=False,
+                                        interval=10, blit=False)
     ax.set_xlim3d([small_border, big_border])
     ax.set_ylim3d([small_border, big_border])
     ax.set_zlim3d([small_border, big_border])
@@ -34,13 +34,24 @@ def createEllipsoid(num_points=1000, r=3):
     B = np.array([1, 0, 0])
     rng = default_rng()
     unfiltered_points = (rng.random(size=(int(num_points*10), 3)) * r) - (r/2)
-    dists_to_A = getDists(A, unfiltered_points)
-    dists_to_B = getDists(B, unfiltered_points)
+    dists_to_A = get_dists(A, unfiltered_points)
+    dists_to_B = get_dists(B, unfiltered_points)
     total_dists = dists_to_A + dists_to_B
     filtered_points = unfiltered_points[(total_dists <= r), :]
     return filtered_points
 
-def getDists(point, mat):
+
+def update_ion_densities():
+    sphere_to_consider = 0.2
+    global points
+    for p_index, point in enumerate(points):
+        dists_to_point = get_dists(point, points)
+        # how many points are within the max sphere of this point, and are ions? 
+        local_ion_density[p_index] = np.sum((dists_to_point <= sphere_to_consider) & which_are_ions)
+
+
+def get_dists(point, mat):
+
     def minus_point_func(vec):
         return vec - point
 
@@ -50,15 +61,8 @@ def getDists(point, mat):
 
 
 def update_points(num, line):
-    max = 30
-    if (num == max):
-        return None
     global points
     global speeds
-    def acceleration_fun(vec):
-        x_factor = -0.05
-        y_factor = 0.05
-        return np.abs(vec[0])**(1/2) * x_factor + np.abs(vec[1])**(1/2) * y_factor
     accelerations = np.apply_along_axis(acceleration_fun, 1, points)
     accelerations[accelerations > 0] = 0
     speeds = speeds + accelerations
@@ -69,7 +73,11 @@ def update_points(num, line):
     line.set_3d_properties(np.transpose(points[:, 2]))
     return line,
 
+
 v_0 = 0.1
 points = createEllipsoid()
 speeds = np.ones(len(points)) * v_0
+temperature_e = 25
+local_ion_density = np.zeros(len(points))
+which_are_ions = initialize_which_are_ions()
 runSim()

@@ -1,2 +1,4 @@
 
 *.mp4
+.vscode/.ropeproject/config.py
+.vscode/.ropeproject/objectdb
