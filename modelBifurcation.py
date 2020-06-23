@@ -14,14 +14,14 @@ def runSim():
     line, = ax.plot(xs=points[:, 0], ys=points[:, 1],
                     zs=points[:, 2], ls='', marker='.')
     # Creating the Animation object
-    line_anim = animation.FuncAnimation(fig, update_fun, frames=10,
+    line_anim = animation.FuncAnimation(fig, update_fun, frames=100,
                                         fargs=(line,), repeat=False,
                                         interval=10, blit=False)
     ax.set_xlim3d([small_border, big_border])
     ax.set_ylim3d([small_border, big_border])
     ax.set_zlim3d([small_border, big_border])
 
-    # # Set up formatting for the movie files
+    # Set up formatting for the movie files
     Writer = animation.writers['ffmpeg']
     writer = Writer(fps=15, metadata=dict(artist='Kiara'), bitrate=1800)
 
@@ -29,16 +29,20 @@ def runSim():
     plt.show()
 
 
-def createEllipsoid(num_points=100, r=3):
+def create_ellipsoid_shell(r_i, r_o, num_points=100):
+    """ r_i is the inner radius of the ellipsoid shell \n
+        r_o is the outer radius of the ellipsoid shell """
     A = np.array([-1, 0, 0])
     B = np.array([1, 0, 0])
     rng = default_rng()
-    unfiltered_points = (rng.random(size=(int(num_points*10), 3)) * r) - (r/2)
+    unfiltered_points = (rng.random(size=(int(num_points*10), 3)) * r_o)
+    unfiltered_points -= (r_o/2)
     dists_to_A = get_dists(A, unfiltered_points)
     dists_to_B = get_dists(B, unfiltered_points)
     total_dists = dists_to_A + dists_to_B
-    filtered_points = unfiltered_points[(total_dists <= r), :]
+    filtered_points = unfiltered_points[(total_dists <= r_o), :]
     return filtered_points
+
 
 def initialize_which_are_ions():
     initial_ion_proportion = 0.3
@@ -91,7 +95,7 @@ def update_fun(num, line):
 
 
 v_0 = 0.1
-points = createEllipsoid()
+points = create_ellipsoid_shell(0, 3)
 speeds = np.ones(len(points)) * v_0
 temperature_e = 25
 local_ion_densities = np.zeros(len(points))
