@@ -110,8 +110,16 @@ def update_fun(num, line):
 fig = plt.figure()
 ax = p3.Axes3D(fig)
 v_0 = 0.1
-points1 = create_ellipsoid_shell(0, 3, num_points=1)
-points2 = create_ellipsoid_shell(3, 6)
+num_shells = 5
+shell_width = 2
+
+for shell in range(num_shells):
+    #TODO
+    shell_width = 5
+    create_ellipsoid_shell(shell*shell_width, (shell+1)*shell_width, )
+
+
+
 points = np.concatenate((points1, points2))
 speeds = np.ones(len(points)) * v_0
 temperature_e = 25
