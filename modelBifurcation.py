@@ -9,8 +9,7 @@ from numpy.random import default_rng
 def runSim():
     small_border = -10
     big_border = 10
-    fig = plt.figure()
-    ax = p3.Axes3D(fig)
+    global ax
     line, = ax.plot(xs=points[:, 0], ys=points[:, 1],
                     zs=points[:, 2], ls='', marker='.')
     # Creating the Animation object
@@ -26,7 +25,8 @@ def runSim():
     writer = Writer(fps=15, metadata=dict(artist='Kiara'), bitrate=1800)
 
     line_anim.save('drifting_lobes.mp4', writer=writer)
-    plt.show()
+  #  plt.show()
+    return
 
 
 def create_ellipsoid_shell(r_i, r_o, num_points=100):
@@ -41,6 +41,9 @@ def create_ellipsoid_shell(r_i, r_o, num_points=100):
     dists_to_B = get_dists(B, unfiltered_points)
     total_dists = dists_to_A + dists_to_B
     filtered_points = unfiltered_points[(total_dists <= r_o), :]
+    if (len(filtered_points) < num_points):
+        raise Exception("Not enough points found!")
+    filtered_points = filtered_points[0:num_points]
     return filtered_points
 
 
@@ -80,10 +83,12 @@ def update_points(num, line):
     c_acceleration = -0.01
     accelerations = local_ion_densities * temperature_e * c_acceleration
     accelerations[accelerations > 0] = 0
-    speeds = speeds + accelerations
+    speeds += accelerations
     speeds[speeds < 0] = 0.05
     speeds_to_use = np.transpose(np.array([speeds, speeds, speeds]))
-    points = points + (np.multiply(speeds_to_use, np.apply_along_axis(lambda v: v / LA.norm(v), 1, points)))
+    def n_f(v): return v / LA.norm(v)
+    norm_points = np.apply_along_axis(n_f, 1, points)
+    points += (np.multiply(speeds_to_use, norm_points))
     line.set_data(np.transpose(points[:, 0:2]))
     line.set_3d_properties(np.transpose(points[:, 2]))
     return line,
@@ -94,8 +99,20 @@ def update_fun(num, line):
     update_ion_densities()
 
 
+# def init_fun():
+#     line, = ax.plot(xs=points1[:, 0], ys=points1[:, 1],
+#                     zs=points1[:, 2], ls='', marker='.')
+#     line2, = ax.plot(xs=points2[:, 0], ys=points2[:, 1],
+#                 zs=points2[:, 2], ls='', marker='.', color='r')
+
+
+
+fig = plt.figure()
+ax = p3.Axes3D(fig)
 v_0 = 0.1
-points = create_ellipsoid_shell(0, 3)
+points1 = create_ellipsoid_shell(0, 3, num_points=1)
+points2 = create_ellipsoid_shell(3, 6)
+points = np.concatenate((points1, points2))
 speeds = np.ones(len(points)) * v_0
 temperature_e = 25
 local_ion_densities = np.zeros(len(points))
