@@ -9,12 +9,17 @@ class ParticleManager():
 
     def __init__(self, num_shells=20):
         v_0 = 0.1
-        # for shell in range(num_shells):
-        #     # TODO
-        #     shell_width = 5
-        #     self.create_ellipsoid_shell(shell*shell_width, (shell+1)*shell_width, )
+        shell_width = 0.5
+        num_points_in_shell = 10
+        self.points = np.zeros((num_points_in_shell * num_shells, 3))
+        for shell in range(num_shells):
+            r_i = 2 + shell*shell_width
+            r_o = 2 + (shell+1)*shell_width
+            points_to_add = self.create_ellipsoid_shell(r_i, r_o, num_points_in_shell)
+            start = shell*num_points_in_shell
+            end = (shell+1)*num_points_in_shell
+            self.points[start:end, :] = points_to_add
 
-        self.create_ellipsoid_shell(0, 3)
         self.speeds = np.ones(len(self.points)) * v_0
         self.temperature_e = 25
         self.initialize_which_are_ions()
@@ -35,7 +40,7 @@ class ParticleManager():
         if (len(filtered_points) < num_points):
             raise Exception("Not enough points found!")
         filtered_points = filtered_points[0:num_points]
-        self.points = filtered_points
+        return filtered_points
 
     def initialize_which_are_ions(self):
         initial_ion_proportion = 0.3
