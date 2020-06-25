@@ -3,25 +3,28 @@ import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d.axes3d as p3
 from numpy import linalg as LA
 from numpy.random import default_rng
+from readDensityDataFromFile import read_density_from_file
 
 
 class ParticleManager():
 
     def __init__(self, num_shells=20):
         v_0 = 0.1
-        shell_width = 0.5
-        num_points_in_shell = 10
-        self.points = np.zeros((num_points_in_shell * num_shells, 3))
+        # get_shell_vals will set the temperature
+        shell_widths, num_points_by_shell = self.get_shell_vals()
+        total_num_points = np.sum(num_points_by_shell) * num_shells
+        self.points = np.zeros((total_num_points, 3))
         for shell in range(num_shells):
-            r_i = 2 + shell*shell_width
-            r_o = 2 + (shell+1)*shell_width
-            points_to_add = self.create_ellipsoid_shell(r_i, r_o, num_points_in_shell)
-            start = shell*num_points_in_shell
-            end = (shell+1)*num_points_in_shell
+            shell_width = shell_widths[shell]
+            num_points = num_points_by_shell[shell]
+            r_i = shell*shell_width
+            r_o = (shell+1)*shell_width
+            points_to_add = self.create_ellipsoid_shell(r_i, r_o, num_points)
+            start = shell*num_points
+            end = (shell+1)*num_points
             self.points[start:end, :] = points_to_add
 
         self.speeds = np.ones(len(self.points)) * v_0
-        self.temperature_e = 25
         self.initialize_which_are_ions()
         self.update_ion_densities()
 
@@ -82,3 +85,12 @@ class ParticleManager():
     def update_fun(self, num, line):
         self.update_points(line)
         self.update_ion_densities()
+
+    def get_shell_vals(self):
+        file_to_read = "C:/Users/Kiara/Documents/glw/CleanBifurcation/Results/AllShellsCalcs_den_0p5/All_Fractions_vs_timepqn_50Density_0p5_shells_100_t_max_200.csv"
+        ryds, electrons, volumes, temperature = read_density_from_file(file_to_read)
+        self.temperature_e = temperature
+        
+
+
+

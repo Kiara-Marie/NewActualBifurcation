@@ -29,5 +29,3 @@ def read_density_from_file(filename, time_to_consider):
     d_time_r = np.abs(times[time_index + 1] - time_to_consider)
     time_index = time_index if d_time_l < d_time_r else time_index + 1
     return ryd[time_index, :], electrons[time_index, :], volumes[time_index, :], temperatures[time_index]
-
-read_density_from_file("C:/Users/Kiara/Documents/glw/CleanBifurcation/Results/AllShellsCalcs_den_0p5/All_Fractions_vs_timepqn_50Density_0p5_shells_100_t_max_200.csv", 20)
