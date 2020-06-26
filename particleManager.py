@@ -4,7 +4,7 @@ import mpl_toolkits.mplot3d.axes3d as p3
 from numpy import linalg as LA
 from numpy.random import default_rng
 from readDensityDataFromFile import read_density_from_file
-
+from solveQuadratic import solve_quadratic
 
 class ParticleManager():
 
@@ -31,15 +31,25 @@ class ParticleManager():
     def create_ellipsoid_shell(self, r_i, r_o, num_points=100):
         """ r_i is the inner radius of the ellipsoid shell \n
             r_o is the outer radius of the ellipsoid shell """
-        A = np.array([-1, 0, 0])
-        B = np.array([1, 0, 0])
+
+        # x = 2 ;  y, z = 1
+        A_i, B_i, s_i = self.solve_for_foci(r_i)
+        A_o, B_o, s_o = self.solve_for_foci(r_o) 
         rng = default_rng()
-        unfiltered_points = (rng.random(size=(int(num_points*10), 3)) * r_o)
+
+        unfiltered_points = (rng.random(size=(int(num_points*30), 3)) * r_o)
         unfiltered_points -= (r_o/2)
-        dists_to_A = self.get_dists(A, unfiltered_points)
-        dists_to_B = self.get_dists(B, unfiltered_points)
+
+        dists_to_A = self.get_dists(A_o, unfiltered_points)
+        dists_to_B = self.get_dists(B_o, unfiltered_points)
         total_dists = dists_to_A + dists_to_B
-        filtered_points = unfiltered_points[(total_dists <= r_o), :]
+        filtered_points = unfiltered_points[(total_dists <= s_o), :]
+        
+        inner_dists_to_A = self.get_dists(A_i, unfiltered_points)
+        inner_dists_to_B = self.get_dists(B_i, unfiltered_points)
+        inner_total_dists = inner_dists_to_A + inner_dists_to_B
+        filtered_points = unfiltered_points[(inner_total_dists >= s_i), :]
+
         if (len(filtered_points) < num_points):
             raise Exception("Not enough points found!")
         filtered_points = filtered_points[0:num_points]
@@ -82,15 +92,25 @@ class ParticleManager():
         line.set_3d_properties(np.transpose(self.points[:, 2]))
         return line,
 
+    def solve_for_foci(self, a):
+        coeff_a = -3
+        coeff_b = -12*a
+        coeff_c = 8*a*a
+        d_1, d_2 = solve_quadratic(coeff_a, coeff_b, coeff_c)
+        d = np.max(d_1, d_2)
+        A = [-d/2, 0, 0]
+        B = [d/2, 0, 0]
+        s = (a*a + d*d)**(1/2)
+        return A, B, s
+
     def update_fun(self, num, line):
         self.update_points(line)
         self.update_ion_densities()
 
     def get_shell_vals(self):
         file_to_read = "C:/Users/Kiara/Documents/glw/CleanBifurcation/Results/AllShellsCalcs_den_0p5/All_Fractions_vs_timepqn_50Density_0p5_shells_100_t_max_200.csv"
-        ryds, electrons, volumes, temperature = read_density_from_file(file_to_read)
+        ryds, electrons, volumes, temperature = read_density_from_file(file_to_read, 20)
         self.temperature_e = temperature
-        
 
 
 

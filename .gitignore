@@ -3,4 +3,5 @@
 .vscode/.ropeproject/config.py
 .vscode/.ropeproject/objectdb
 *.pyc
-__pycache__/particleManager.cpython-38.pyc
+.hypothesis/*
+
