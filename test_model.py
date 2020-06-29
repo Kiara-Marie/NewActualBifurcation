@@ -24,12 +24,18 @@ def test_quadratic(a, b, c):
        d_seed=hyp.arrays(np.float, 10, elements=zero_to_five), 
        volumes=hyp.arrays(np.float, 10, elements=zero_to_one),
        total_desired_num_points=int_particles)
-def test_find_widths_and_nums(r_seed, e_seed, d_seed, volumes, total_desired_num_points):  
+def test_find_widths_and_nums(printer, r_seed, e_seed, d_seed, volumes, total_desired_num_points):  
     # densities are expressed as a percentage of the total particles
+    all_particles = (np.sum(r_seed) + np.sum(e_seed) + np.sum(d_seed))
+    if (all_particles == 0 ):
+        return
     ryds = r_seed / (np.sum(r_seed) + np.sum(e_seed) + np.sum(d_seed))
     electrons = e_seed / (np.sum(r_seed) + np.sum(e_seed) + np.sum(d_seed))
     shell_widths, num_points_by_shell = rddff.find_widths_and_nums(ryds, electrons, volumes, total_desired_num_points)
     # V = 4pi/3abc = pi/3 * a^3 
     produced_volumes = ((np.pi) / 3) * (shell_widths ** 3)
+    prev_vol = 0
     for index, p_volume in enumerate(produced_volumes):
-        assert volumes[index] == pytest.approx(p_volume)
+        assert volumes[index] == pytest.approx(p_volume - prev_vol)
+        prev_vol = p_volume
+    

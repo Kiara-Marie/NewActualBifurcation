@@ -40,7 +40,6 @@ def get_shell_vals():
     check_time = 20
     total_desired_num_points = 300
     ryds, electrons, volumes, temperature = read_density_from_file(file_to_read, check_time)
-    self.temperature_e = temperature
     return temperature, find_widths_and_nums(ryds,
                                              electrons,
                                              volumes,
@@ -50,6 +49,11 @@ def get_shell_vals():
 def find_widths_and_nums(ryds, electrons, volumes, total_desired_num_points):    
     # a = b/2 = c/2
     # V = 4pi/3abc = pi/3 * a^3 -> (3V/pi)**(1/3) = a
-    shell_widths = (3*volumes/np.pi)**(1/3)
+    shell_widths = np.zeros(len(volumes))
+    prev_vol = 0
+    for index in range(len(volumes)):
+        desired_volume = prev_vol + volumes[index]
+        shell_widths[index] = (3*desired_volume/np.pi)**(1/3)
+        prev_vol = ((np.pi) / 3) * (shell_widths[index] ** 3)
     num_points_by_shell = (ryds + electrons) * total_desired_num_points
     return shell_widths, num_points_by_shell
