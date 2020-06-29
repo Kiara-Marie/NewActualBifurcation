@@ -3,16 +3,17 @@ import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d.axes3d as p3
 from numpy import linalg as LA
 from numpy.random import default_rng
-from readDensityDataFromFile import read_density_from_file
+from readDensityDataFromFile import get_shell_vals
 from solveQuadratic import solve_quadratic
 
 class ParticleManager():
 
-    def __init__(self, num_shells=20):
+    def __init__(self):
         v_0 = 0.1
         # get_shell_vals will set the temperature
-        shell_widths, num_points_by_shell = self.get_shell_vals()
-        total_num_points = np.sum(num_points_by_shell) * num_shells
+        self.e_temperature, shell_widths, num_points_by_shell = get_shell_vals()
+        num_shells = len(num_points_by_shell)
+        total_num_points = np.sum(num_points_by_shell) 
         self.points = np.zeros((total_num_points, 3))
         for shell in range(num_shells):
             shell_width = shell_widths[shell]
@@ -31,8 +32,6 @@ class ParticleManager():
     def create_ellipsoid_shell(self, r_i, r_o, num_points=100):
         """ r_i is the inner radius of the ellipsoid shell \n
             r_o is the outer radius of the ellipsoid shell """
-
-        # x = 2 ;  y, z = 1
         A_i, B_i, s_i = self.solve_for_foci(r_i)
         A_o, B_o, s_o = self.solve_for_foci(r_o) 
         rng = default_rng()
@@ -106,11 +105,3 @@ class ParticleManager():
     def update_fun(self, num, line):
         self.update_points(line)
         self.update_ion_densities()
-
-    def get_shell_vals(self):
-        file_to_read = "C:/Users/Kiara/Documents/glw/CleanBifurcation/Results/AllShellsCalcs_den_0p5/All_Fractions_vs_timepqn_50Density_0p5_shells_100_t_max_200.csv"
-        ryds, electrons, volumes, temperature = read_density_from_file(file_to_read, 20)
-        self.temperature_e = temperature
-
-
-
