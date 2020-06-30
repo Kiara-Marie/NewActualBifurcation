@@ -7,7 +7,7 @@ def read_density_from_file(filename, time_to_consider):
     # matrix is organized [times,totalRyd,totaldeac,totalE,Te,vol]
     #                      1        N         N       N    1   N
 
-    mat = np.loadtxt(filename, delimiter=",")
+    mat = load_from_binary(filename)
 
     num_shells = 100
     times = mat[:, 0]
