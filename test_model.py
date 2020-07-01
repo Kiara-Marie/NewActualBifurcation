@@ -33,7 +33,10 @@ def test_find_widths_and_nums(printer, r_seed, e_seed, volumes, total_desired_nu
         return
     ryds = r_seed / all_particles
     electrons = e_seed / all_particles
-    shell_widths, num_points_by_shell, num_ions_by_shell = rddff.find_widths_and_nums(ryds, electrons, volumes, total_desired_num_points)
+
+    shell_widths, num_points_by_shell, num_ions_by_shell = \
+        rddff.find_widths_and_nums(ryds, electrons, volumes, total_desired_num_points)
+
     # V = 4pi/3abc = pi/3 * a^3
     produced_volumes = ((np.pi) / 3) * (shell_widths ** 3)
     prev_vol = 0
@@ -41,7 +44,7 @@ def test_find_widths_and_nums(printer, r_seed, e_seed, volumes, total_desired_nu
         assert volumes[index] == pytest.approx(p_volume - prev_vol)
         prev_vol = p_volume
 
-    assert np.sum(num_points_by_shell) == total_desired_num_points
+    assert np.sum(num_points_by_shell) == pytest.approx(total_desired_num_points, rel=0.15)
     proportion_ions = num_ions_by_shell / np.sum(num_points_by_shell)
-    for index in len(proportion_ions):
-        assert proportion_ions[index] == pytest.approx(ryds[index], rel=0.001)
+    for index in range(len(proportion_ions)):
+        assert proportion_ions[index] == pytest.approx(electrons[index], rel=0.1)

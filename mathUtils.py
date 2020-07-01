@@ -16,7 +16,7 @@ def solve_for_foci(a):
     coeff_b = -12*a
     coeff_c = 8*a*a
     d_1, d_2 = solve_quadratic(coeff_a, coeff_b, coeff_c)
-    d = np.max(d_1, d_2)
+    d = d_1 if d_1 > d_2 else d_2
     A = [-d/2, 0, 0]
     B = [d/2, 0, 0]
     s = (a*a + d*d)**(1/2)

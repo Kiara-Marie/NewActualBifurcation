@@ -12,7 +12,7 @@ class ParticleManager():
         # get_shell_vals will set the temperature
         self.e_temperature, shell_widths, num_points_by_shell, num_ions_by_shell = get_shell_vals()
         num_shells = len(num_points_by_shell)
-        total_num_points = np.sum(num_points_by_shell)
+        total_num_points = int(np.sum(num_points_by_shell))
         self.initialize_points(total_num_points, num_shells, shell_widths,
                                num_points_by_shell, num_ions_by_shell)
         self.speeds = np.ones(len(self.points)) * v_0
@@ -24,6 +24,7 @@ class ParticleManager():
         A_i, B_i, s_i = solve_for_foci(r_i)
         A_o, B_o, s_o = solve_for_foci(r_o)
         rng = default_rng()
+        num_points = int(num_points)
 
         unfiltered_points = (rng.random(size=(int(num_points*30), 3)) * r_o)
         unfiltered_points -= (r_o/2)
@@ -82,10 +83,10 @@ class ParticleManager():
             r_i = shell*shell_width
             r_o = (shell+1)*shell_width
             points_to_add = self.create_ellipsoid_shell(r_i, r_o, num_points)
-            start = shell*num_points
-            end = (shell+1)*num_points
+            start = int(shell*num_points)
+            end = int((shell+1)*num_points)
             self.points[start:end, :] = points_to_add
 
-            num_ions = num_ions_by_shell[shell]
-            ion_end = num_ions + start
+            num_ions = int(num_ions_by_shell[shell])
+            ion_end = int(num_ions + start)
             self.which_are_ions[start:ion_end] = [True for i in range(num_ions)]

@@ -1,4 +1,5 @@
 import numpy as np
+from loadFromBinary import load_from_binary
 
 
 def read_density_from_file(filename, time_to_consider):
@@ -32,8 +33,8 @@ def read_density_from_file(filename, time_to_consider):
 
 
 def get_shell_vals():
-    file_path = "C:/Users/Kiara/Documents/glw/CleanBifurcation/Results/AllShellsCalcs_den_0p5/"
-    file_name = "All_Fractions_vs_timepqn_50Density_0p5_shells_100_t_max_200.csv"
+    file_path = "C:/Users/Kiara/Documents/glw/CleanBifurcation/Results/MoreTimesCalcs_den_0p5/"
+    file_name = "All_Fractions_vs_timepqn_50Density_0p5_shells_100_t_max_200.bin"
     file_to_read = file_path + file_name
     check_time = 20
     total_desired_num_points = 500
@@ -65,7 +66,7 @@ def check_sum(ryd, deac, electrons):
     deac_sum = np.sum(deac, axis=1)
     electrons_sum = np.sum(electrons, axis=1)
     total_sum = ryd_sum + deac_sum + electrons_sum
-    if any(np.abs(total_sum - 100) > 0.01):
+    if any(np.abs(total_sum - 1) > 0.01):
         raise Exception("incorrect file format!")
 
 
