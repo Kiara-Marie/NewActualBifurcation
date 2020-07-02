@@ -11,7 +11,9 @@ def runSim():
     fig = plt.figure()
     ax = p3.Axes3D(fig)
 
-    p_mngr = ParticleManager()
+    target_shells = 2
+
+    p_mngr = ParticleManager(target_shells)
     line, = ax.plot(xs=p_mngr.points[:, 0], ys=p_mngr.points[:, 1],
                     zs=p_mngr.points[:, 2], ls='', marker='.')
     # Creating the Animation object
