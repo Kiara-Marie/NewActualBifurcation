@@ -11,7 +11,7 @@ def runSim():
     fig = plt.figure()
     ax = p3.Axes3D(fig)
 
-    target_shells = 2
+    target_shells = 5
 
     p_mngr = ParticleManager(target_shells)
     line, = ax.plot(xs=p_mngr.points[:, 0], ys=p_mngr.points[:, 1],
@@ -28,7 +28,7 @@ def runSim():
     Writer = animation.writers['ffmpeg']
     writer = Writer(fps=15, metadata=dict(artist='Kiara'), bitrate=1800)
 
-    line_anim.save('drifting_lobes.mp4', writer=writer)
+    line_anim.save('July2.mp4', writer=writer)
     #  plt.show()
     return
 

@@ -18,7 +18,7 @@ class ParticleManager():
         self.speeds = np.ones(len(self.points)) * v_0
         self.update_ion_densities()
 
-    def create_ellipsoid_shell(self, r_i, r_o, num_points=100):
+    def create_ellipsoid_shell(self, r_i, r_o, num_points):
         """ r_i is the inner radius of the ellipsoid shell \n
             r_o is the outer radius of the ellipsoid shell """
         A_i, B_i, s_i = solve_for_foci(r_i)

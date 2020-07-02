@@ -18,7 +18,7 @@ def read_density_from_file(filename, time_to_consider, target_shells):
 
     volumes = volumes / np.max(volumes)
 
-    reduce_shells(ryd, deac, electrons, volumes, target_shells)
+    ryd, deac, electrons, volumes = reduce_shells(ryd, deac, electrons, volumes, target_shells)
 
     check_sum(ryd, deac, electrons)
 
@@ -26,7 +26,7 @@ def read_density_from_file(filename, time_to_consider, target_shells):
 
 
 def get_shell_vals(target_shells):
-    file_path = "C:/Users/Kiara/Documents/glw/CleanBifurcation/Results/MoreTimesCalcs_den_0p5/"
+    file_path = ".\"
     file_name = "All_Fractions_vs_timepqn_50Density_0p5_shells_100_t_max_200.bin"
     file_to_read = file_path + file_name
     check_time = 20
@@ -95,3 +95,5 @@ def reduce_shells(ryd, deac, electrons, volumes, target_shells):
     deac = deac[0:target_shells] / total_particles
     electrons = electrons[0:target_shells] / total_particles
     volumes = volumes[0:target_shells]
+
+    return ryd, deac, electrons, volumes
