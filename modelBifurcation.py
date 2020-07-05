@@ -17,7 +17,7 @@ def runSim():
     line, = ax.plot(xs=p_mngr.points[:, 0], ys=p_mngr.points[:, 1],
                     zs=p_mngr.points[:, 2], ls='', marker='.')
     # Creating the Animation object
-    line_anim = animation.FuncAnimation(fig, p_mngr.update_fun, frames=20,
+    line_anim = animation.FuncAnimation(fig, p_mngr.update_fun, frames=10,
                                         fargs=(line,), repeat=False,
                                         interval=100, blit=False)
     ax.set_xlim3d([small_border, big_border])
@@ -26,7 +26,7 @@ def runSim():
 
     # Set up formatting for the movie files
     Writer = animation.writers['ffmpeg']
-    writer = Writer(fps=15, metadata=dict(artist='Kiara'), bitrate=1800)
+    writer = Writer(fps=10, metadata=dict(artist='Kiara'), bitrate=1800)
 
     line_anim.save('July2.mp4', writer=writer)
     #  plt.show()
