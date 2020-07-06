@@ -25,12 +25,10 @@ def read_density_from_file(filename, time_to_consider, target_shells):
     return ryd, electrons, volumes, temperature
 
 
-def get_shell_vals(target_shells):
+def get_shell_vals(target_shells, total_desired_num_points, check_time):
     file_path = ""
     file_name = "All_Fractions_vs_timepqn_50Density_0p5_shells_100_t_max_200.bin"
     file_to_read = file_path + file_name
-    check_time = 20
-    total_desired_num_points = 1000
     ryds, electrons, volumes, temperature = read_density_from_file(file_to_read, check_time, target_shells)
     shell_widths, num_points_by_shell, num_ions_by_shell = find_widths_and_nums(ryds,
                                                                                 electrons,

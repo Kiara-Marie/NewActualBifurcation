@@ -7,10 +7,11 @@ from mathUtils import get_dists, solve_for_foci
 
 class ParticleManager():
 
-    def __init__(self, target_shells):
+    def __init__(self, target_shells, total_desired_num_points, check_time):
         v_0 = 0.1
         # get_shell_vals will set the temperature
-        self.e_temperature, shell_widths, num_points_by_shell, num_ions_by_shell = get_shell_vals(target_shells)
+        self.e_temperature, shell_widths, num_points_by_shell, num_ions_by_shell = \
+            get_shell_vals(target_shells,  total_desired_num_points, check_time)
         num_shells = len(num_points_by_shell)
         total_num_points = int(np.sum(num_points_by_shell))
         self.initialize_points(total_num_points, num_shells, shell_widths,
