@@ -2,3 +2,7 @@
 *.mp4
 .vscode/.ropeproject/config.py
 .vscode/.ropeproject/objectdb
+*.pyc
+.hypothesis/*
+
+*.bin
