@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d.axes3d as p3
 import matplotlib.animation as animation
+import matplotlib
+matplotlib.use('Agg')
 from particleManager import ParticleManager
 import argparse
 import config
@@ -19,11 +21,13 @@ def runSim():
     filename = vars(result)['name']
     num_frames = vars(result)['frames']
     fps = vars(result)['fps']
+    c_acceleration = vars(result)['a']
+    max_dist = vars(result)['dist']
     frame_length = 1000 / fps
     config.SAVE = vars(result)['save']
     config.SHOW = vars(result)['show']
 
-    p_mngr = ParticleManager(target_shells, num_points, check_time)
+    p_mngr = ParticleManager(target_shells, num_points, check_time, c_acceleration, max_dist)
     line, = ax.plot(xs=p_mngr.points[:, 0], ys=p_mngr.points[:, 1],
                     zs=p_mngr.points[:, 2], ls='', marker='.')
     # Creating the Animation object
@@ -46,7 +50,7 @@ def runSim():
 
 
 def get_settings():
-  
+
     parser = argparse.ArgumentParser(description='Run the bifurcation model')
 
     parser.add_argument('--shells', type=int, nargs='?',
@@ -74,6 +78,12 @@ def get_settings():
     parser.add_argument('--fps', type=int, nargs='?',
                         help='Framerate for the animation',
                         action='store', default='60')
+    parser.add_argument('--a', type=float, nargs='?',
+                        help='Acceleration coefficient; should be negative',
+                        action='store', default='-0.01')
+    parser.add_argument('--dist', type=float, nargs='?',
+                        help='Maximum distance for an ion to be considered near',
+                        action='store', default='0.2')
     result = parser.parse_args()
     return result
 

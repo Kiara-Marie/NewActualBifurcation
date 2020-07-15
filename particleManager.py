@@ -7,8 +7,10 @@ from mathUtils import get_dists, solve_for_foci
 
 class ParticleManager():
 
-    def __init__(self, target_shells, total_desired_num_points, check_time):
+    def __init__(self, target_shells, total_desired_num_points, check_time, c_acceleration, max_dist):
         v_0 = 0.1
+        self.max_dist = max_dist
+        self.c_acceleration = c_acceleration
         # get_shell_vals will set the temperature
         self.e_temperature, shell_widths, num_points_by_shell, num_ions_by_shell = \
             get_shell_vals(target_shells,  total_desired_num_points, check_time)
@@ -46,7 +48,7 @@ class ParticleManager():
         return filtered_points
 
     def update_ion_densities(self):
-        sphere_to_consider = 0.2
+        sphere_to_consider = self.max_dist
         self.local_ion_densities = np.zeros(len(self.points))
         for p_index, point in enumerate(self.points):
             dists_to_point = get_dists(point, self.points)
@@ -56,8 +58,7 @@ class ParticleManager():
                                                        self.which_are_ions)
 
     def update_points(self, line):
-        c_acceleration = -0.01
-        accelerations = self.local_ion_densities * self.e_temperature * c_acceleration
+        accelerations = self.local_ion_densities * self.e_temperature * self.c_acceleration
         accelerations[accelerations > 0] = 0
         self.speeds += accelerations
         self.speeds[self.speeds < 0] = 0.05

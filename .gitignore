@@ -6,3 +6,5 @@
 .hypothesis/*
 
 *.bin
+Results/PreliminaryResults.zip
+*.out
