@@ -1,24 +1,31 @@
 import numpy as np
 from numpy import linalg as LA
 from numpy.random import default_rng
-from readDensityDataFromFile import get_shell_vals
+#from readDensityDataFromFile import get_shell_vals
+from dummyVals import get_shell_vals as get_dummy_vals
 from mathUtils import get_dists, solve_for_foci
+import constants as C
 
 
 class ParticleManager():
 
-    def __init__(self, target_shells, total_desired_num_points, check_time, c_acceleration, max_dist):
-        v_0 = 0.1
-        self.max_dist = max_dist
-        self.c_acceleration = c_acceleration
-        # get_shell_vals will set the temperature
+    def __init__(self, target_shells, total_desired_num_points, 
+                 check_time, c_acceleration, max_dist):
+        # 20 m/s = 2e-8 m/ns = 2e-5 micrometers/ns
+        v_0 = 2e-5                            # micrometers / ns
+        self.max_dist = max_dist              # micrometers
+        self.c_acceleration = c_acceleration  # micrometers / ns^2
+        # get_shell_vals will set the temperature, in K
+        # self.e_temperature, shell_widths, num_points_by_shell, num_ions_by_shell = \
+        #     get_shell_vals(target_shells,  total_desired_num_points, check_time)
         self.e_temperature, shell_widths, num_points_by_shell, num_ions_by_shell = \
-            get_shell_vals(target_shells,  total_desired_num_points, check_time)
+            get_dummy_vals(total_desired_num_points)
         num_shells = len(num_points_by_shell)
         total_num_points = int(np.sum(num_points_by_shell))
         self.initialize_points(total_num_points, num_shells, shell_widths,
                                num_points_by_shell, num_ions_by_shell)
-        self.speeds = np.ones(len(self.points)) * v_0
+        self.speeds = np.zeros(total_num_points)
+        self.speeds[self.which_are_ions] = np.ones(np.sum(self.which_are_ions)) * v_0
         self.update_ion_densities()
 
     def create_ellipsoid_shell(self, r_i, r_o, num_points):
@@ -58,8 +65,12 @@ class ParticleManager():
                                                        self.which_are_ions)
 
     def update_points(self, line):
-        accelerations = self.local_ion_densities * self.e_temperature * self.c_acceleration
+        accelerations = np.zeros(len(self.which_are_ions))
+        acceleration_val = self.e_temperature * self.c_acceleration
+        num_ions = np.sum(self.which_are_ions)
+        accelerations[self.which_are_ions] = [acceleration_val for i in range(num_ions)] 
         accelerations[accelerations > 0] = 0
+        self.update_temp(accelerations)
         self.speeds += accelerations
         self.speeds[self.speeds < 0] = 0.05
         speeds_to_use = np.transpose(np.array([self.speeds, self.speeds, self.speeds]))
@@ -77,18 +88,32 @@ class ParticleManager():
     def initialize_points(self, total_num_points, num_shells, shell_widths,
                           num_points_by_shell, num_ions_by_shell):
 
+        self.total_num_points = total_num_points
         self.points = np.zeros((total_num_points, 3))
         self.which_are_ions = [False for i in range(total_num_points)]
+        shell_widths = np.insert(shell_widths, 0, 0)
+        points_so_far = 0
         for shell in range(num_shells):
             shell_width = shell_widths[shell]
             num_points = num_points_by_shell[shell]
-            r_i = shell*shell_width
-            r_o = (shell+1)*shell_width
+            r_i = shell_width
+            r_o = shell_widths[shell+1]
             points_to_add = self.create_ellipsoid_shell(r_i, r_o, num_points)
-            start = int(shell*num_points)
-            end = int((shell+1)*num_points)
+            
+            start = int(points_so_far)
+            end = int(points_so_far + num_points)
             self.points[start:end, :] = points_to_add
+            points_so_far += num_points
 
             num_ions = int(num_ions_by_shell[shell])
             ion_end = int(num_ions + start)
             self.which_are_ions[start:ion_end] = [True for i in range(num_ions)]
+
+    def update_temp(self, accelerations):
+        # delta_v = a*t (in this case, t = 1ns, a is in micrometres/ns^2)
+        delta_v_sqr = accelerations ** 2
+        sum_dvs = np.sum(delta_v_sqr)
+        num_ions = np.sum(self.which_are_ions)
+        # Should be multiplied by m_i / 3N_e K_b
+        factor = C.ION_MASS / (3 * num_ions * C.BOLTZMANN)
+        self.e_temperature -= (sum_dvs * factor)

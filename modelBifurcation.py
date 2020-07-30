@@ -2,7 +2,8 @@ import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d.axes3d as p3
 import matplotlib.animation as animation
 import matplotlib
-matplotlib.use('Agg')
+# this line should be uncommented when running on ComputeCanada.
+#matplotlib.use('Agg')
 from particleManager import ParticleManager
 import argparse
 import config
@@ -26,6 +27,7 @@ def runSim():
     frame_length = 1000 / fps
     config.SAVE = vars(result)['save']
     config.SHOW = vars(result)['show']
+    config.CAREFUL = vars(result)['c']
 
     p_mngr = ParticleManager(target_shells, num_points, check_time, c_acceleration, max_dist)
     line, = ax.plot(xs=p_mngr.points[:, 0], ys=p_mngr.points[:, 1],
@@ -58,7 +60,7 @@ def get_settings():
     parser.add_argument('--points', type=int, nargs='?',
                         help='Target number of particles', action='store', default=1000)
     parser.add_argument('--c', '--careful', type=bool, nargs='?',
-                        help='Whether to run extra (time consuming) checks to verify code is working properly', 
+                        help='Whether to run extra (time consuming) checks to verify code is working properly',
                         action='store', default=True)
     parser.add_argument('--show', type=bool, nargs='?',
                         help='Whether to show the animation',
