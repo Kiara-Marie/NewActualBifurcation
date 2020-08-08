@@ -28,8 +28,10 @@ def runSim():
     config.SAVE = vars(result)['save']
     config.SHOW = vars(result)['show']
     config.CAREFUL = vars(result)['c']
+    temp_drop = vars(result)['tempDrop']
 
-    p_mngr = ParticleManager(target_shells, num_points, check_time, c_acceleration, max_dist)
+    p_mngr = ParticleManager(target_shells, num_points, check_time,
+                             c_acceleration, max_dist, temp_drop)
     line, = ax.plot(xs=p_mngr.points[:, 0], ys=p_mngr.points[:, 1],
                     zs=p_mngr.points[:, 2], ls='', marker='.')
     # Creating the Animation object
@@ -76,16 +78,19 @@ def get_settings():
                         action='store', default="animation.mp4")
     parser.add_argument('--frames', type=int, nargs='?',
                         help='Number of frames for the animation',
-                        action='store', default='100')
+                        action='store', default='150')
     parser.add_argument('--fps', type=int, nargs='?',
                         help='Framerate for the animation',
-                        action='store', default='60')
+                        action='store', default='30')
     parser.add_argument('--a', type=float, nargs='?',
-                        help='Acceleration coefficient; should be negative',
-                        action='store', default='-0.01')
+                        help='Acceleration coefficient; should be positive',
+                        action='store', default='0.00001')
     parser.add_argument('--dist', type=float, nargs='?',
                         help='Maximum distance for an ion to be considered near',
                         action='store', default='0.2')
+    parser.add_argument('--tempDrop', type=float, nargs='?',
+                        help='Coefficient for temperature drop',
+                        action='store', default=1)
     result = parser.parse_args()
     return result
 

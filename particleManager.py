@@ -10,11 +10,12 @@ import constants as C
 class ParticleManager():
 
     def __init__(self, target_shells, total_desired_num_points, 
-                 check_time, c_acceleration, max_dist):
+                 check_time, c_acceleration, max_dist, temp_drop):
         # 20 m/s = 2e-8 m/ns = 2e-5 micrometers/ns
         v_0 = 2e-5                            # micrometers / ns
         self.max_dist = max_dist              # micrometers
         self.c_acceleration = c_acceleration  # micrometers / ns^2
+        self.temp_drop = temp_drop
         # get_shell_vals will set the temperature, in K
         # self.e_temperature, shell_widths, num_points_by_shell, num_ions_by_shell = \
         #     get_shell_vals(target_shells,  total_desired_num_points, check_time)
@@ -69,10 +70,9 @@ class ParticleManager():
         acceleration_val = self.e_temperature * self.c_acceleration
         num_ions = np.sum(self.which_are_ions)
         accelerations[self.which_are_ions] = [acceleration_val for i in range(num_ions)] 
-        accelerations[accelerations > 0] = 0
+        accelerations[accelerations < 0] = 0
         self.update_temp(accelerations)
         self.speeds += accelerations
-        self.speeds[self.speeds < 0] = 0.05
         speeds_to_use = np.transpose(np.array([self.speeds, self.speeds, self.speeds]))
         def n_f(v): return v / LA.norm(v)
         norm_points = np.apply_along_axis(n_f, 1, self.points)
@@ -116,4 +116,4 @@ class ParticleManager():
         num_ions = np.sum(self.which_are_ions)
         # Should be multiplied by m_i / 3N_e K_b
         factor = C.ION_MASS / (3 * num_ions * C.BOLTZMANN)
-        self.e_temperature -= (sum_dvs * factor)
+        self.e_temperature -= self.temp_drop*(sum_dvs * factor)
