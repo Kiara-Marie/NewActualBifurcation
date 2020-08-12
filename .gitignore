@@ -8,3 +8,4 @@
 *.bin
 Results/PreliminaryResults.zip
 *.out
+*.json

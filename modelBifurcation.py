@@ -2,7 +2,8 @@ import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d.axes3d as p3
 import matplotlib.animation as animation
 import matplotlib
-matplotlib.use('Agg')
+# this line should be uncommented when running on ComputeCanada.
+#matplotlib.use('Agg')
 from particleManager import ParticleManager
 import argparse
 import config
@@ -26,8 +27,11 @@ def runSim():
     frame_length = 1000 / fps
     config.SAVE = vars(result)['save']
     config.SHOW = vars(result)['show']
+    config.CAREFUL = vars(result)['c']
+    temp_drop = vars(result)['tempDrop']
 
-    p_mngr = ParticleManager(target_shells, num_points, check_time, c_acceleration, max_dist)
+    p_mngr = ParticleManager(target_shells, num_points, check_time,
+                             c_acceleration, max_dist, temp_drop)
     line, = ax.plot(xs=p_mngr.points[:, 0], ys=p_mngr.points[:, 1],
                     zs=p_mngr.points[:, 2], ls='', marker='.')
     # Creating the Animation object
@@ -58,7 +62,7 @@ def get_settings():
     parser.add_argument('--points', type=int, nargs='?',
                         help='Target number of particles', action='store', default=1000)
     parser.add_argument('--c', '--careful', type=bool, nargs='?',
-                        help='Whether to run extra (time consuming) checks to verify code is working properly', 
+                        help='Whether to run extra (time consuming) checks to verify code is working properly',
                         action='store', default=True)
     parser.add_argument('--show', type=bool, nargs='?',
                         help='Whether to show the animation',
@@ -74,16 +78,19 @@ def get_settings():
                         action='store', default="animation.mp4")
     parser.add_argument('--frames', type=int, nargs='?',
                         help='Number of frames for the animation',
-                        action='store', default='100')
+                        action='store', default='150')
     parser.add_argument('--fps', type=int, nargs='?',
                         help='Framerate for the animation',
-                        action='store', default='60')
+                        action='store', default='30')
     parser.add_argument('--a', type=float, nargs='?',
-                        help='Acceleration coefficient; should be negative',
-                        action='store', default='-0.01')
+                        help='Acceleration coefficient; should be positive',
+                        action='store', default='0.00001')
     parser.add_argument('--dist', type=float, nargs='?',
                         help='Maximum distance for an ion to be considered near',
                         action='store', default='0.2')
+    parser.add_argument('--tempDrop', type=float, nargs='?',
+                        help='Coefficient for temperature drop',
+                        action='store', default=1)
     result = parser.parse_args()
     return result
 
